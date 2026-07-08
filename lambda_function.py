@@ -14,9 +14,9 @@ def lambda_handler(event, context):
     if len(parts) != 2 or parts[0].lower() != "bearer":
         return {"statusCode": 400, "body": json.dumps({"error": "Malformed Authentication header"})}
     token = parts[1]
-    response = table.get_item(Key={"token": token}) or {}
+    response = table.get_item(Key={"token": token})
     if 'Item' not in response:
-        return {"statusCode": 403, "body": json.dumps({"error": "Unauthorized Request"})}
+        return {"statusCode": 403, "body": json.dumps({"error": "Forbidden Request"})}
     return {"statusCode": 200, "body": json.dumps({"email": response['Item']['email']})}
 
 if __name__ == "__main__":
