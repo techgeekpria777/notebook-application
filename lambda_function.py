@@ -1,10 +1,17 @@
 import json
 import boto3
 from boto3.dynamodb.conditions import Key
+from decimal import Decimal
 
 dynamodb = boto3.resource("dynamodb")
 token_table = dynamodb.Table('token-email-lookup')
 notes_table = dynamodb.Table('user-notes')
+
+def _json_default(obj):
+    if isinstance(obj, Decimal):
+        # convert to int if it's a whole number, else float
+        return int(obj) if obj % 1 == 0 else float(obj)
+    raise TypeError
 
 def lambda_handler(event, context):
     headers = event.get("headers") or {}
@@ -26,7 +33,7 @@ def lambda_handler(event, context):
         Limit=10
     )
     items = notes_response.get('Items', [])
-    return {"statusCode": 200, "body": json.dumps({"notes": items})}
+    return {"statusCode": 200, "body": json.dumps({"notes": items}, default=_json_default)}
 
 if __name__ == "__main__":
     test_cases = [
