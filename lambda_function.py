@@ -6,7 +6,7 @@ def lambda_handler(event, context):
     auth_value = lower_case.get("authentication")
     if not auth_value:
         return {"statusCode": 400, "body": json.dumps({"error": "Missing Authentication header"})}
-    return {"statusCode": 200, "body": json.dumps({"header": lower_case['authentication']})}
+    return {"statusCode": 200, "body": json.dumps({"header": auth_value})}
 
 if __name__ == "__main__":
     event = {"headers": {"Authentication": "Bearer abc123"}}
