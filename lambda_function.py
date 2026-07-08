@@ -1,8 +1,10 @@
 import json
 import boto3
+from boto3.dynamodb.conditions import Key
 
 dynamodb = boto3.resource("dynamodb")
-table = dynamodb.Table('token-email-lookup')
+token_table = dynamodb.Table('token-email-lookup')
+notes_table = dynamodb.Table('user-notes')
 
 def lambda_handler(event, context):
     headers = event.get("headers") or {}
@@ -14,10 +16,17 @@ def lambda_handler(event, context):
     if len(parts) != 2 or parts[0].lower() != "bearer":
         return {"statusCode": 400, "body": json.dumps({"error": "Malformed Authentication header"})}
     token = parts[1]
-    response = table.get_item(Key={"token": token})
-    if 'Item' not in response:
+    token_response = token_table.get_item(Key={"token": token})
+    if 'Item' not in token_response:
         return {"statusCode": 403, "body": json.dumps({"error": "Forbidden Request"})}
-    return {"statusCode": 200, "body": json.dumps({"email": response['Item']['email']})}
+    email = token_response['Item']['email']
+    notes_response = notes_table.query(
+        KeyConditionExpression=Key('user').eq(email),
+        ScanIndexForward=False,
+        Limit=10
+    )
+    items = notes_response.get('Items', [])
+    return {"statusCode": 200, "body": json.dumps({"notes": items})}
 
 if __name__ == "__main__":
     test_cases = [
