@@ -5,3 +5,7 @@ console.txt
 venv/
 __pycache__/
 .pytest*
+
+#infra
+.terraform/
+.terraform.lock.hcl
