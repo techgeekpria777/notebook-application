@@ -1,0 +1,20 @@
+{
+    "token-email-lookup" : [
+        {
+            "PutRequest" : {
+                "Item" : {
+                    "token" : {"S": "abc123"},
+                    "email" : {"S": "alice@example.com"}
+                }
+            }
+        },
+        {
+            "PutRequest" : {
+                "Item" : {
+                    "token" : {"S": "xyz789"},
+                    "email" : {"S": "bob@example.com"}
+                }
+            }
+        }
+    ]
+}

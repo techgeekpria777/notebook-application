@@ -1,3 +1,11 @@
+#logs
 console.txt
+
+#python
 venv/
 __pycache__/
+.pytest*
+
+#infra
+.terraform/
+*.tfstate
