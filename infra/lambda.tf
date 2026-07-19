@@ -1,6 +1,6 @@
 data "archive_file" "lambda_zip" {
   type        = "zip"
-  source_file  = "${path.module}/../lambda_function.py"
+  source_file = "${path.module}/../lambda_function.py"
   output_path = "${path.module}/lambda_function.zip"
 }
 
@@ -18,4 +18,31 @@ resource "aws_iam_role" "lambda_role" {
       }
     ]
   })
+}
+
+resource "aws_iam_role_policy" "dynamodb_policy" {
+  name = "notebook-application-dynamodb-policy"
+  role = aws_iam_role.lambda_role.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action   = ["dynamodb:GetItem"]
+        Effect   = "Allow"
+        Resource = aws_dynamodb_table.token_email_lookup.arn
+      },
+      {
+        Action = [
+          "dynamodb:Query"
+        ]
+        Effect   = "Allow"
+        Resource = aws_dynamodb_table.user_notes.arn
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
+  role       = aws_iam_role.lambda_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
